@@ -3,8 +3,6 @@ package com.example.firstdemo.mvvm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.firstdemo.network.ApiResult
-import com.example.firstdemo.network.apiCall
-import com.example.firstdemo.retrofitstudy.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +16,7 @@ import kotlinx.coroutines.launch
  */
 class PostListViewModel : ViewModel() {
 
-    // 同样去掉 Repository,直接 apiCall{ RetrofitClient.api.xxx() }
+    private val repository = PostRepository()
 
     private val _uiState = MutableStateFlow(PostListUiState())
     val uiState: StateFlow<PostListUiState> = _uiState.asStateFlow()
@@ -45,7 +43,7 @@ class PostListViewModel : ViewModel() {
         // ★ 断点：协程发起处
         viewModelScope.launch {
             // 同样用 when 分流 ApiResult。列表页的错误统一塞进 uiState.error 字段。
-            when (val result = apiCall { RetrofitClient.api.getPostsByUser(userId = 1) }) {
+            when (val result = repository.getPostsByUser(userId = 1)) {
                 is ApiResult.Success -> _uiState.update {
                     it.copy(
                         posts = result.data,

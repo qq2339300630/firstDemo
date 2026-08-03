@@ -3,8 +3,6 @@ package com.example.firstdemo.mvvm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.firstdemo.network.ApiResult
-import com.example.firstdemo.network.apiCall
-import com.example.firstdemo.retrofitstudy.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,10 +20,8 @@ import kotlinx.coroutines.launch
  */
 class PostViewModel : ViewModel() {
 
-    // 去掉了 Repository 层：直接用 RetrofitClient.api + apiCall{}。
-    // 好处：加新接口只需在 ApiService 里加一行，不用再到别处写一遍。
-    // 代价：ViewModel 直接依赖了 RetrofitClient 这个单例，不好替换/测试，
-    //       以后要加缓存/SWR 时，再把 Repository 请回来即可。
+    // 走业务层 Repository：ViewModel 不关心用哪个接口、怎么拿数据。
+    private val repository = PostRepository()
 
     // 对内可变
     private val _uiState = MutableStateFlow<PostUiState>(PostUiState.Idle)
@@ -42,12 +38,12 @@ class PostViewModel : ViewModel() {
 
         // ★ 断点：step into launch，跟一遍「挂起→请求→恢复→更新状态」
         viewModelScope.launch {
-            // apiCall{} 返回 ApiResult，绝不抛异常。
+            // repository 返回 ApiResult，绝不抛异常。
             // 用 when 分流三种结果 —— 密封接口保证这里覆盖全、漏一个编译不过。
             // 注意 Error 和 Exception 给的是【不同】文案：
             //   Error     = 服务器有响应但非2xx（用 result.message，如"资源不存在"）
             //   Exception = 根本没连上（统一提示网络问题）
-            _uiState.value = when (val result = apiCall { RetrofitClient.api.getPost(id) }) {
+            _uiState.value = when (val result = repository.getPost(id)) {
                 is ApiResult.Success -> PostUiState.Success(result.data)
                 is ApiResult.Error -> PostUiState.Error(result.message)
                 is ApiResult.Exception -> PostUiState.Error("网络异常，请检查网络连接")
