@@ -1,5 +1,9 @@
 package com.example.firstdemo.mvvm
 
+import com.example.firstdemo.data.DatabaseProvider
+import com.example.firstdemo.data.PostDao
+import com.example.firstdemo.data.toEntity
+import com.example.firstdemo.data.toPost
 import com.example.firstdemo.network.ApiResult
 import com.example.firstdemo.network.HttpService
 import com.example.firstdemo.network.apiCall
@@ -7,6 +11,8 @@ import com.example.firstdemo.network.decode
 import com.example.firstdemo.retrofitstudy.Comment
 import com.example.firstdemo.retrofitstudy.Post
 import com.example.firstdemo.retrofitstudy.RetrofitClient
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * 业务层（数据层）。这是它"正确的姿势"：
@@ -25,14 +31,34 @@ import com.example.firstdemo.retrofitstudy.RetrofitClient
  */
 class PostRepository(
     private val http: HttpService = RetrofitClient.http,
+    private val postDao: PostDao = DatabaseProvider.postDao,
 ) {
+    // ────────── 缓存 / SWR（单一数据源 = Room）──────────
+
+    /**
+     * 观察本地缓存的帖子列表。UI 只订阅这一个 Flow：
+     * 一订阅就立刻拿到库里现有数据（可能是上次的旧数据 → 秒开 / 无网可看），
+     * 之后每次 Room 里 posts 表变化（网络刷新写入后），都会自动收到新值。
+     */
+    fun observePosts(): Flow<List<Post>> =
+        postDao.observePosts().map { entities -> entities.map { it.toPost() } }
+
+    /**
+     * 从网络刷新帖子并写入 Room（不直接把数据返回给 UI）。
+     * 写完库后，observePosts() 会自动发射新值刷新界面 —— 这就是"单一数据源"的精髓：
+     * 网络只负责"往库里灌新数据"，UI 永远只认库。
+     * 返回 ApiResult<Unit>：只表达这次刷新成没成功，数据本身走 Flow。
+     */
+    suspend fun refreshPosts(userId: Int): ApiResult<Unit> = apiCall {
+        val posts: List<Post> = http.get("posts?userId=$userId").decode()
+        postDao.upsertAll(posts.map { it.toEntity() })
+    }
+
+    // ────────── 其它简单/组合接口（未接缓存，直连网络）──────────
+
     /** 简单接口：单篇帖子。 */
     suspend fun getPost(id: Int): ApiResult<Post> =
         apiCall { http.get("posts/$id").decode() }
-
-    /** 简单接口：某用户的帖子列表。查询参数直接写进 url。 */
-    suspend fun getPostsByUser(userId: Int): ApiResult<List<Post>> =
-        apiCall { http.get("posts?userId=$userId").decode() }
 
     /** 简单接口：某帖子的评论。 */
     suspend fun getComments(postId: Int): ApiResult<List<Comment>> =
