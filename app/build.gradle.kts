@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -54,6 +55,11 @@ dependencies {
     // MVVM：ViewModel + StateFlow 在 Compose 里的桥接
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // Room：本地数据库(缓存/SWR 的单一数据源)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)          // 提供 suspend / Flow 支持
+    ksp(libs.androidx.room.compiler)                // 注解处理器,生成 DAO 实现
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
