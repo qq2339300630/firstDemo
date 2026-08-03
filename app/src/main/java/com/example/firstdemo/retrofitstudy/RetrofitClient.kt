@@ -1,6 +1,7 @@
 package com.example.firstdemo.retrofitstudy
 
 import com.example.firstdemo.network.AuthInterceptor
+import com.example.firstdemo.network.HttpService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -35,14 +36,19 @@ object RetrofitClient {
         .addInterceptor(logging)             // ② 再打日志(能看到①加的头)
         .build()
 
-    val api: ApiService by lazy {
-        val retrofit = Retrofit.Builder()
+    // 只建【一个】 Retrofit 实例，下面两个接口共用它（共享同一个 OkHttpClient、拦截器、Converter）
+    private val retrofit by lazy {
+        Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)                       // callFactory：真正发请求的人
             .addConverterFactory(GsonConverterFactory.create()) // Converter：JSON <-> Post
             .build()
-
-        // ★ 核心断点位置 1：step into create() 看动态代理是怎么生成的
-        retrofit.create(ApiService::class.java)
     }
+
+    // ① 类型化接口：给"学习 Retrofit 源码"的 demo 用（@GET/@Path/Call<T> 那一套）
+    // ★ 核心断点位置 1：step into create() 看动态代理是怎么生成的
+    val api: ApiService by lazy { retrofit.create(ApiService::class.java) }
+
+    // ② 通用接口：给 App 业务层（Repository）用，只有 get/post
+    val http: HttpService by lazy { retrofit.create(HttpService::class.java) }
 }
