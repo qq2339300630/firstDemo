@@ -2,6 +2,7 @@ package com.example.firstdemo.mvvm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.firstdemo.network.ApiResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,11 +41,15 @@ class PostViewModel : ViewModel() {
 
         // ★ 断点：step into launch，跟一遍「挂起→请求→恢复→更新状态」
         viewModelScope.launch {
-            _uiState.value = try {
-                val post = repository.getPost(id)   // 挂起，等网络返回，不阻塞主线程
-                PostUiState.Success(post)
-            } catch (e: Exception) {
-                PostUiState.Error(e.message ?: "未知错误")
+            // repository 现在返回 ApiResult，不再抛异常。
+            // 用 when 分流三种结果 —— 密封接口保证这里覆盖全、漏一个编译不过。
+            // 注意 Error 和 Exception 给的是【不同】文案：
+            //   Error     = 服务器有响应但非2xx（用 result.message，如"资源不存在"）
+            //   Exception = 根本没连上（统一提示网络问题）
+            _uiState.value = when (val result = repository.getPost(id)) {
+                is ApiResult.Success -> PostUiState.Success(result.data)
+                is ApiResult.Error -> PostUiState.Error(result.message)
+                is ApiResult.Exception -> PostUiState.Error("网络异常，请检查网络连接")
             }
         }
     }

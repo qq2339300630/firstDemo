@@ -2,6 +2,7 @@ package com.example.firstdemo.mvvm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.firstdemo.network.ApiResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,23 +42,21 @@ class PostListViewModel : ViewModel() {
     private fun fetch(isRefresh: Boolean) {
         // ★ 断点：协程发起处
         viewModelScope.launch {
-            try {
-                val posts = repository.getPostsByUser(userId = 1)
-                _uiState.update {
+            // 同样用 when 分流 ApiResult。列表页的错误统一塞进 uiState.error 字段。
+            when (val result = repository.getPostsByUser(userId = 1)) {
+                is ApiResult.Success -> _uiState.update {
                     it.copy(
-                        posts = posts,
+                        posts = result.data,
                         isLoading = false,
                         isRefreshing = false,
                         error = null,
                     )
                 }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        isRefreshing = false,
-                        error = e.message ?: "未知错误",
-                    )
+                is ApiResult.Error -> _uiState.update {
+                    it.copy(isLoading = false, isRefreshing = false, error = result.message)
+                }
+                is ApiResult.Exception -> _uiState.update {
+                    it.copy(isLoading = false, isRefreshing = false, error = "网络异常，请检查网络连接")
                 }
             }
         }
