@@ -31,6 +31,22 @@ interface HttpService {
     @GET
     suspend fun get(@Url url: String): ResponseBody
 
+    /**
+     * 发 POST 请求。
+     *
+     * ★ 约定：body 只传【对象或 Map】,不要传"已经是 JSON 的字符串"。
+     *
+     * 因为配了 GsonConverterFactory,Retrofit 会用 Gson 序列化这个 body:
+     *   - 传对象/Map           → Gson 转成 JSON,正确
+     *       post("posts", mapOf("title" to "hi"))   // body = {"title":"hi"}
+     *   - 传裸 JSON 字符串      → Gson 把整个字符串当成一个 JSON 值再包一层引号转义,
+     *                            双重编码,服务器会解析失败:
+     *       post("posts", "{\"title\":\"hi\"}")      // body = "\"{\\\"title\\\"...\""  ❌
+     *
+     * 统一在【入口】约束:所有 body 都给对象,由 Gson 统一转,永远正确。
+     * (万一真有第三方给的现成 JSON 串要原样发,那是另一回事——需要单独用
+     *  RequestBody + application/json,不能走这个方法。)
+     */
     @POST
     suspend fun post(@Url url: String, @Body body: Any): ResponseBody
 }
