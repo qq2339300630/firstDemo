@@ -1,5 +1,6 @@
 package com.example.firstdemo.retrofitstudy
 
+import com.example.firstdemo.network.AuthInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -26,8 +27,12 @@ object RetrofitClient {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
+    // 注意添加顺序 = 执行顺序:
+    // 把 AuthInterceptor 放在 logging【之前】,请求先经过 Auth 加好 header,
+    // 再流到 logging,这样日志里就能看到 Authorization / Accept 头(否则打印不到)。
     private val okHttpClient = OkHttpClient.Builder()
-        .addInterceptor(logging)
+        .addInterceptor(AuthInterceptor())   // ① 先加公共头/token
+        .addInterceptor(logging)             // ② 再打日志(能看到①加的头)
         .build()
 
     val api: ApiService by lazy {
