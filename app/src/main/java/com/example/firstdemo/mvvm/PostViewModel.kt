@@ -3,6 +3,8 @@ package com.example.firstdemo.mvvm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.firstdemo.network.ApiResult
+import com.example.firstdemo.network.apiCall
+import com.example.firstdemo.retrofitstudy.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,11 +22,10 @@ import kotlinx.coroutines.launch
  */
 class PostViewModel : ViewModel() {
 
-    // 注意：这里直接 new Repository，而不是写成构造参数。
-    // 因为 Compose 的 viewModel() 用默认工厂靠【反射找无参构造】来创建 ViewModel，
-    // Kotlin 的「默认参数」不会生成真正的无参构造，会导致运行时崩溃。
-    // 真实项目里要做构造注入，得配 ViewModelProvider.Factory 或用 Hilt。
-    private val repository = PostRepository()
+    // 去掉了 Repository 层：直接用 RetrofitClient.api + apiCall{}。
+    // 好处：加新接口只需在 ApiService 里加一行，不用再到别处写一遍。
+    // 代价：ViewModel 直接依赖了 RetrofitClient 这个单例，不好替换/测试，
+    //       以后要加缓存/SWR 时，再把 Repository 请回来即可。
 
     // 对内可变
     private val _uiState = MutableStateFlow<PostUiState>(PostUiState.Idle)
@@ -41,12 +42,12 @@ class PostViewModel : ViewModel() {
 
         // ★ 断点：step into launch，跟一遍「挂起→请求→恢复→更新状态」
         viewModelScope.launch {
-            // repository 现在返回 ApiResult，不再抛异常。
+            // apiCall{} 返回 ApiResult，绝不抛异常。
             // 用 when 分流三种结果 —— 密封接口保证这里覆盖全、漏一个编译不过。
             // 注意 Error 和 Exception 给的是【不同】文案：
             //   Error     = 服务器有响应但非2xx（用 result.message，如"资源不存在"）
             //   Exception = 根本没连上（统一提示网络问题）
-            _uiState.value = when (val result = repository.getPost(id)) {
+            _uiState.value = when (val result = apiCall { RetrofitClient.api.getPost(id) }) {
                 is ApiResult.Success -> PostUiState.Success(result.data)
                 is ApiResult.Error -> PostUiState.Error(result.message)
                 is ApiResult.Exception -> PostUiState.Error("网络异常，请检查网络连接")
