@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.firstdemo.canvasstudy.BlendDemoScreen
 import com.example.firstdemo.canvasstudy.PathDemoScreen
 import com.example.firstdemo.mvvm.PostDetailScreen
 import com.example.firstdemo.mvvm.PostListScreen
@@ -42,10 +44,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DemoTabs(modifier: Modifier = Modifier) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val titles = listOf("基础 Demo", "MVVM Demo", "列表刷新", "帖子详情", "Canvas")
+    val titles = listOf("基础 Demo", "MVVM Demo", "列表刷新", "帖子详情", "Canvas", "混合")
 
     Column(modifier = modifier.fillMaxSize()) {
-        TabRow(selectedTabIndex = selectedTab) {
+        ScrollableTabRow(selectedTabIndex = selectedTab, edgePadding = 0.dp) {
             titles.forEachIndexed { index, title ->
                 Tab(
                     selected = selectedTab == index,
@@ -60,6 +62,7 @@ fun DemoTabs(modifier: Modifier = Modifier) {
             2 -> PostListScreen()
             3 -> PostDetailScreen()
             4 -> PathDemoScreen()
+            5 -> BlendDemoScreen()
         }
     }
 }
