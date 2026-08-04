@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.firstdemo.canvasstudy.BlendDemoScreen
+import com.example.firstdemo.canvasstudy.InlineTextDemoScreen
 import com.example.firstdemo.canvasstudy.PathDemoScreen
 import com.example.firstdemo.mvvm.PostDetailScreen
 import com.example.firstdemo.mvvm.PostListScreen
@@ -44,7 +45,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DemoTabs(modifier: Modifier = Modifier) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val titles = listOf("基础 Demo", "MVVM Demo", "列表刷新", "帖子详情", "Canvas", "混合")
+    val titles = listOf("基础 Demo", "MVVM Demo", "列表刷新", "帖子详情", "Canvas", "混合", "图文")
 
     Column(modifier = modifier.fillMaxSize()) {
         ScrollableTabRow(selectedTabIndex = selectedTab, edgePadding = 0.dp) {
@@ -63,6 +64,7 @@ fun DemoTabs(modifier: Modifier = Modifier) {
             3 -> PostDetailScreen()
             4 -> PathDemoScreen()
             5 -> BlendDemoScreen()
+            6 -> InlineTextDemoScreen()
         }
     }
 }
