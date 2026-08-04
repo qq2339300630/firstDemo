@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.firstdemo.canvasstudy.PathDemoScreen
 import com.example.firstdemo.mvvm.PostDetailScreen
 import com.example.firstdemo.mvvm.PostListScreen
 import com.example.firstdemo.mvvm.PostMvvmScreen
@@ -41,7 +42,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DemoTabs(modifier: Modifier = Modifier) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val titles = listOf("基础 Demo", "MVVM Demo", "列表刷新", "帖子详情")
+    val titles = listOf("基础 Demo", "MVVM Demo", "列表刷新", "帖子详情", "Canvas")
 
     Column(modifier = modifier.fillMaxSize()) {
         TabRow(selectedTabIndex = selectedTab) {
@@ -58,6 +59,7 @@ fun DemoTabs(modifier: Modifier = Modifier) {
             1 -> PostMvvmScreen()
             2 -> PostListScreen()
             3 -> PostDetailScreen()
+            4 -> PathDemoScreen()
         }
     }
 }
