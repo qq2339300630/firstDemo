@@ -25,7 +25,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * 图文混排 + 自动换行(Compose 版)。
+ *             图文混排 + 自动换行(Compose 版)。
  *
  * 核心三件套：
  *   buildAnnotatedString  —— 拼一段带"占位标记"的富文本
