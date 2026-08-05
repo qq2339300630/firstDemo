@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isGone
 
 /**
  * 流式布局 FlowLayout —— 经典自定义 ViewGroup 实战。
@@ -71,7 +72,7 @@ class FlowLayout @JvmOverloads constructor(
 
         for (i in 0 until childCount) {
             val child = getChildAt(i)
-            if (child.visibility == View.GONE) continue
+            if (child.isGone) continue
             val cw = child.measuredWidth
             val ch = child.measuredHeight
 

@@ -7,6 +7,12 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import kotlin.math.min
 
 /**
@@ -80,4 +86,17 @@ class RingProgressView @JvmOverloads constructor(
         val baseline = cy - (fm.ascent + fm.descent) / 2f
         canvas.drawText("${(progress * 100).toInt()}%", cx, baseline, textPaint)
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RingProgressViewPreview() {
+    AndroidView(
+        factory = { context ->
+            RingProgressView(context).apply {
+                progress = 0.5f
+            }
+        },
+        modifier = Modifier.size(200.dp)
+    )
 }

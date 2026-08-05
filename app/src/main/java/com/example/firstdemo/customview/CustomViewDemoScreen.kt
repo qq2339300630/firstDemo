@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 
@@ -54,4 +55,10 @@ fun CustomViewDemoScreen(modifier: Modifier = Modifier) {
         Text("拖动改变进度:${(progress * 100).toInt()}%")
         Slider(value = progress, onValueChange = { progress = it })
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CustomViewDemoScreenPreview() {
+    CustomViewDemoScreen()
 }
