@@ -26,6 +26,7 @@ import com.example.firstdemo.canvasstudy.PathDemoScreen
 import com.example.firstdemo.customview.CustomViewDemoScreen
 import com.example.firstdemo.customview.FlowLayoutDemoScreen
 import com.example.firstdemo.customview.PanZoomDemoScreen
+import com.example.firstdemo.customview.ReorderListDemoScreen
 import com.example.firstdemo.customview.SliderDemoScreen
 import com.example.firstdemo.customview.TouchEventDemoScreen
 import com.example.firstdemo.mvvm.PostDetailScreen
@@ -51,7 +52,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DemoTabs(modifier: Modifier = Modifier) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val titles = listOf("基础 Demo", "MVVM Demo", "列表刷新", "帖子详情", "Canvas", "混合", "图文", "翻牌", "进度环", "流式布局", "触摸", "看图", "滑块")
+    val titles = listOf("基础 Demo", "MVVM Demo", "列表刷新", "帖子详情", "Canvas", "混合", "图文", "翻牌", "进度环", "流式布局", "触摸", "看图", "滑块", "排序")
 
     Column(modifier = modifier.fillMaxSize()) {
         ScrollableTabRow(selectedTabIndex = selectedTab, edgePadding = 0.dp) {
@@ -77,6 +78,7 @@ fun DemoTabs(modifier: Modifier = Modifier) {
             10 -> TouchEventDemoScreen()
             11 -> PanZoomDemoScreen()
             12 -> SliderDemoScreen()
+            13 -> ReorderListDemoScreen()
         }
     }
 }

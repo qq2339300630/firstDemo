@@ -56,6 +56,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
+    // RecyclerView(经典 View,用于 ItemTouchHelper 拖动排序 demo)
+    implementation(libs.androidx.recyclerview)
+
     // Room：本地数据库(缓存/SWR 的单一数据源)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)          // 提供 suspend / Flow 支持
