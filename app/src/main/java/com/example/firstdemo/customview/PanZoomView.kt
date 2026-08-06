@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.OverScroller
+import androidx.core.graphics.toColorInt
 
 /**
  * 综合手势 View:双向拖动 + 双指缩放 + 双击放大 + 惯性甩动。
@@ -42,7 +43,7 @@ class PanZoomView @JvmOverloads constructor(
     private val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 4f
-        color = Color.parseColor("#455A64")
+        color = "#455A64".toColorInt()
     }
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.WHITE
@@ -50,13 +51,13 @@ class PanZoomView @JvmOverloads constructor(
         textSize = 44f
     }
     private val hudPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#333333")
+        color = "#333333".toColorInt()
         textSize = 36f
     }
     private val colors = intArrayOf(
-        Color.parseColor("#EF9A9A"), Color.parseColor("#90CAF9"),
-        Color.parseColor("#A5D6A7"), Color.parseColor("#FFCC80"),
-        Color.parseColor("#CE93D8"), Color.parseColor("#80CBC4"),
+        "#EF9A9A".toColorInt(), "#90CAF9".toColorInt(),
+        "#A5D6A7".toColorInt(), "#FFCC80".toColorInt(),
+        "#CE93D8".toColorInt(), "#80CBC4".toColorInt(),
     )
 
     // ── 缩放手势 ──
@@ -69,7 +70,8 @@ class PanZoomView @JvmOverloads constructor(
                 transX = d.focusX - (d.focusX - transX) * (newScale / scale)
                 transY = d.focusY - (d.focusY - transY) * (newScale / scale)
                 scale = newScale
-                clamp(); invalidate()
+                clamp()
+                invalidate()
                 return true
             }
         },
@@ -86,8 +88,10 @@ class PanZoomView @JvmOverloads constructor(
 
             override fun onScroll(e1: MotionEvent?, e2: MotionEvent, dX: Float, dY: Float): Boolean {
                 if (scaleDetector.isInProgress) return false  // 缩放中不平移
-                transX -= dX; transY -= dY     // 直接跟手(translate 方案下 -distance)
-                clamp(); invalidate()
+                transX -= dX;
+                transY -= dY     // 直接跟手(translate 方案下 -distance)
+                clamp();
+                invalidate()
                 return true
             }
 
@@ -138,7 +142,11 @@ class PanZoomView @JvmOverloads constructor(
     private fun clamp() {
         val sw = content * scale
         val sh = content * scale
-        transX = if (sw <= width) (width - sw) / 2f else transX.coerceIn(width - sw, 0f)
+        transX = if (sw <= width) {
+            (width - sw) / 2f
+        } else {
+            transX.coerceIn(width - sw, 0f)
+        }
         transY = if (sh <= height) (height - sh) / 2f else transY.coerceIn(height - sh, 0f)
     }
 
